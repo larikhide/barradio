@@ -11,7 +11,7 @@ BARRADIO - приложение для выбора жанра музыки, и�
 
 
 ## список участников
-P. Ustyuzhanin https://github.com/larikhide
+P. Ustyuzhanin https://github.com/larikhide  
 А. Куприянов https://github.com/sanya-spb  
 Дмитрий https://github.com/shda1615  
 Vitaliy Shatskikh https://github.com/vitalyshatskikh  
