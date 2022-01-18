@@ -11,6 +11,6 @@ SMARTRADIO - приложение для выбора жанра музыки, �
 
 
 ## список участников
-А. Куприянов https://github.com/sanya-spb
-Дмитрий https://github.com/shda1615
-Vitaliy Shatskikh https://github.com/vitalyshatskikh
+А. Куприянов https://github.com/sanya-spb  
+Дмитрий https://github.com/shda1615  
+Vitaliy Shatskikh https://github.com/vitalyshatskikh  
