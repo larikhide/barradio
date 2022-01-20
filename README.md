@@ -16,5 +16,5 @@ P. Ustyuzhanin https://github.com/larikhide
 Дмитрий https://github.com/shda1615  
 Vitaliy Shatskikh https://github.com/vitalyshatskikh  
 А. Афанасьев https://github.com/lewa100  
-D. Bulavin https://github.com/DENDarkness
+D. Bulavin https://github.com/DENDarkness  
 D. Alekseev https://github.com/alekceev
