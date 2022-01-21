@@ -1,0 +1,51 @@
+---
+name: deploy-heroku-demo
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+env:
+  HEROKU_CLI_URL: https://cli-assets.heroku.com/install.sh
+  HEROKU_REGISTRY: registry.heroku.com
+  HEROKU_APP: barradio
+  HEROKU_SERVICE: web
+
+jobs:
+  # pre-deploy:
+  #   uses: larikhide/barradio/.github/workflows/barradio.yml@main
+
+  deploy:
+    runs-on: ubuntu-20.04
+    #needs: pre-deploy
+    env:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}        
+    steps:
+      - uses: actions/checkout@v2      
+        with:
+          fetch-depth: 0
+      # tooling
+      - run: curl $HEROKU_CLI_URL | sh
+      # login
+      - run: |
+              cat <<EOF >~/.netrc
+              machine git.heroku.com
+                login gitlab
+                password ${HEROKU_API_KEY}
+              EOF
+      # setup
+      - run: heroku buildpacks:add -a $HEROKU_APP heroku-community/nginx || echo nginx already exists
+      - run: heroku buildpacks:add -a $HEROKU_APP heroku/go || echo go already exists
+      # deploy
+      - run: heroku git:remote -a $HEROKU_APP
+      - run: git push heroku $GITHUB_REF_NAME:main --force
+      # start
+      - run: heroku ps:scale $HEROKU_SERVICE=1
+      # check
+      - run: heroku ps -a $HEROKU_APP
+      - run: test $(heroku ps -a $HEROKU_APP |grep -E "^$HEROKU_SERVICE" |awk '{print $2}') = "up" || exit 1
+
+
+
