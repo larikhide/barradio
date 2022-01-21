@@ -14,12 +14,12 @@ env:
   HEROKU_SERVICE: web
 
 jobs:
-  # pre-deploy:
-  #   uses: larikhide/barradio/.github/workflows/barradio.yml@main
+  pre-deploy:
+    uses: larikhide/barradio/.github/workflows/barradio.yml@main
 
   deploy:
     runs-on: ubuntu-20.04
-    #needs: pre-deploy
+    needs: pre-deploy
     env:
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}        
     steps:
