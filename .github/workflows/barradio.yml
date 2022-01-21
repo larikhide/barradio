@@ -1,0 +1,50 @@
+name: Go
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.39
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Test
+      run: go test ./... -v -covermode=count
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Build
+      run: go build -v -o ./barradio 
+
+    - name: Test
+      run: |
+        ./barradio &
+        sleep 1
+        go test ./... -v -covermode=count -tags integration

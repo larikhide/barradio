@@ -33,4 +33,4 @@
 docker-compose.yml
 
 # app specific
-./barradio
+barradio
