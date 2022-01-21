@@ -19,6 +19,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: [ golangci ]
     steps:
     - uses: actions/checkout@v2
 
@@ -32,6 +33,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
+    needs: [ test ]
     steps:
     - uses: actions/checkout@v2
 
@@ -41,7 +43,7 @@ jobs:
         go-version: 1.16
 
     - name: Build
-      run: go build -v -o ./barradio 
+      run: go build -v -o ./barradio ./cmd/barradio/*.go
 
     - name: Test
       run: |
