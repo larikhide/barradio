@@ -13,3 +13,24 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# local env files
+.env
+.env.local
+.env.*.local
+
+# Log files
+*.log*
+
+# Editor directories and files
+.idea
+.vscode
+
+# sqllite
+*.db
+
+# docker
+docker-compose.yml
+
+# app specific
+barradio
