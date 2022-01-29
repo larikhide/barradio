@@ -1,0 +1,117 @@
+---
+openapi: '3.0.2'
+info:
+  title: Barradio - music service
+  description: The service allows bar/cafe patrons to vote for the style of music  
+  version: '0.1.0'
+tags:
+  - name: voting
+    description: Vote for the style or get results
+servers:
+  - url: https://barradio.herokuapp.com
+    description: demo server
+paths:
+  # voting service
+  /api/voting/category:
+    get:
+      tags:
+        - voting
+      summary: Creates new short alias for provided URL
+      responses:
+        '201':
+          description: New alias created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VoteCategory"
+  /api/voting/choice:
+    post:
+      tags:
+        - voting
+      summary: Sends user choice to server
+      requestBody:
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/VoteCategory"
+      responses:
+        '201':
+          description: Details about short alias
+        '400':
+          description: Short alias does not exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseError"
+  /api/voting/result/last:
+    get:
+      tags:
+        - voting
+      summary: Returns summary of voting
+      responses:
+        '200':
+          description: Top of categories by last voting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteResult"
+  /api/voting/result/history:
+    get:
+      tags:
+        - voting
+      summary: Returns detailed report of voting
+      parameters:
+        - in: query
+          name: start
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: end
+          required: false
+          schema:
+            type: string
+            format: date-time
+
+      responses:
+        '200':
+          description: All voting results by defined timedelta
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VoteResult"
+
+components:
+  schemas:
+    BaseError:
+      type: object
+      properties:
+        message: 
+          type: string
+    VoteCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    VoteResult:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        total: 
+          type: number
+        winner: 
+          type: object
+          properties:
+            name: 
+              type: string
+            score: 
+              type: number
