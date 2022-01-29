@@ -24,6 +24,10 @@ func NewVoteAPIServer(addr string, service vote_service.VoteService) (srv *http.
 	// endpoints
 	api := router.Group("/api")
 	api.GET("/hello", apihandler.Hello)
+	api.GET("/voting/category", apihandler.RetrieveVoteCategories)
+	api.POST("/voting/choice", apihandler.MakeCategoryChoice)
+	api.GET("/voting/result/last", apihandler.RetrieveLastVoteResult)
+	api.GET("/voting/result/history", apihandler.RetrieveVoteResultHistory)
 
 	server := http.Server{
 		Addr:    addr,
