@@ -1,25 +1,45 @@
 ---
-openapi: '3.0.2'
+openapi: "3.0.2"
 info:
   title: Barradio - music service
   description: The service allows bar/cafe patrons to vote for the style of music  
-  version: '0.1.0'
+  version: "0.1.0"
 tags:
+  - name: health
+    description: Endpoints to check server health
   - name: voting
-    description: Vote for the style or get results
+    description: Vote for the music style or get results
+  - name: playback
+    description: Track/compositions detailed info
 servers:
   - url: https://barradio.herokuapp.com
     description: demo server
 paths:
+  # health
+  /api/hello:
+    get:
+      tags:
+        - health
+      summary: Just hello to be sure that the server is alive
+      responses:
+        "200":
+          description: Hello message
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BaseError"
+
   # voting service
   /api/voting/category:
     get:
       tags:
         - voting
-      summary: Creates new short alias for provided URL
+      summary: Returns a list of categories for voting, such as sentiment/genre/etc
       responses:
-        '201':
-          description: New alias created
+        "200":
+          description: List of categories to choose
           content:
             application/json:
               schema:
@@ -37,10 +57,10 @@ paths:
               schema: 
                 $ref: "#/components/schemas/VoteCategory"
       responses:
-        '201':
-          description: Details about short alias
-        '400':
-          description: Short alias does not exists
+        "201":
+          description: New vote saved
+        "400":
+          description: Invalid request body
           content:
             application/json:
               schema:
@@ -51,7 +71,7 @@ paths:
         - voting
       summary: Returns summary of voting
       responses:
-        '200':
+        "200":
           description: Top of categories by last voting
           content:
             application/json:
@@ -75,9 +95,8 @@ paths:
           schema:
             type: string
             format: date-time
-
       responses:
-        '200':
+        "200":
           description: All voting results by defined timedelta
           content:
             application/json:
@@ -85,6 +104,35 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VoteResult"
+
+  # playback service
+  /api/playback/compositions/{category_name}:
+    get:
+      tags:
+        - playback
+      summary: Returns a list of tracks for selected category
+      parameters:
+        - in: path
+          name: category_name
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Compositions for defined category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Composition"
+        "404":
+          description: Category did not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseError"
+      
 
 components:
   schemas:
@@ -96,8 +144,6 @@ components:
     VoteCategory:
       type: object
       properties:
-        id:
-          type: string
         name:
           type: string
     VoteResult:
@@ -108,10 +154,23 @@ components:
           format: date-time
         total: 
           type: number
-        winner: 
-          type: object
-          properties:
-            name: 
-              type: string
-            score: 
-              type: number
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              score:
+                type: number
+    Composition:
+      type: object
+      properties:
+        singer:
+          type: string
+        name:
+          type: string
+        image_url:
+          type: string
+        composition_url:
+          type: string

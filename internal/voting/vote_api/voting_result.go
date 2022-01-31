@@ -7,15 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type VotingWinner struct {
+type CategoryScore struct {
 	Name  string `json:"name"`
 	Score int    `json:"score"`
 }
 
 type VotingResult struct {
-	Datetime time.Time    `json:"datetime"`
-	Total    int          `json:"total"`
-	Winner   VotingWinner `json:"winner"`
+	Datetime time.Time       `json:"datetime"`
+	Total    int             `json:"total"`
+	Results  []CategoryScore `json:"results"`
 }
 
 // RetrieveLastVoteResult returns aggregated result of last voting
@@ -25,10 +25,20 @@ func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 
 	c.JSON(http.StatusOK, VotingResult{
 		Datetime: time.Now().Round(1 * time.Hour),
-		Total:    100,
-		Winner: VotingWinner{
-			Name:  "Happy",
-			Score: 43,
+		Total:    82,
+		Results: []CategoryScore{
+			{
+				Name:  "cheerful",
+				Score: 43,
+			},
+			{
+				Name:  "lyrical",
+				Score: 32,
+			},
+			{
+				Name:  "relaxed",
+				Score: 7,
+			},
 		},
 	})
 }
@@ -49,26 +59,56 @@ func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, []VotingResult{
 		{
 			Datetime: lastHour.Add(-1 * time.Hour),
-			Total:    100,
-			Winner: VotingWinner{
-				Name:  "Happy",
-				Score: 43,
+			Total:    82,
+			Results: []CategoryScore{
+				{
+					Name:  "cheerful",
+					Score: 43,
+				},
+				{
+					Name:  "lyrical",
+					Score: 32,
+				},
+				{
+					Name:  "relaxed",
+					Score: 7,
+				},
 			},
 		},
 		{
 			Datetime: lastHour.Add(-2 * time.Hour),
 			Total:    78,
-			Winner: VotingWinner{
-				Name:  "Happy",
-				Score: 51,
+			Results: []CategoryScore{
+				{
+					Name:  "lyrical",
+					Score: 51,
+				},
+				{
+					Name:  "cheerful",
+					Score: 20,
+				},
+				{
+					Name:  "relaxed",
+					Score: 7,
+				},
 			},
 		},
 		{
 			Datetime: lastHour.Add(-3 * time.Hour),
 			Total:    15,
-			Winner: VotingWinner{
-				Name:  "Lyrical",
-				Score: 11,
+			Results: []CategoryScore{
+				{
+					Name:  "lyrical",
+					Score: 10,
+				},
+				{
+					Name:  "relaxed",
+					Score: 5,
+				},
+				{
+					Name:  "cheerful",
+					Score: 0,
+				},
 			},
 		},
 	})

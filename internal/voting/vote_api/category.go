@@ -16,8 +16,8 @@ func (h *VoteAPIHandler) RetrieveVoteCategories(c *gin.Context) {
 	// TODO call service method to fetch data from storage
 
 	c.JSON(http.StatusOK, []VoteCategory{
-		{ID: "c100", Name: "Happy"},
-		{ID: "c101", Name: "Calm"},
-		{ID: "c102", Name: "Lyrical"},
+		{ID: "c100", Name: "cheerful"},
+		{ID: "c101", Name: "relaxed"},
+		{ID: "c102", Name: "lyrical"},
 	})
 }

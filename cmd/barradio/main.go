@@ -14,7 +14,7 @@ import (
 
 	"github.com/kelseyhightower/envconfig"
 
-	"github.com/larikhide/barradio/internal/voting/vote_api"
+	"github.com/larikhide/barradio/internal/apiserver"
 	"github.com/larikhide/barradio/internal/voting/vote_service"
 	"github.com/larikhide/barradio/internal/voting/vote_storage"
 )
@@ -79,7 +79,7 @@ func main() {
 	}
 	// start api server
 
-	server := vote_api.NewVoteAPIServer(srvSetting.Listen, *voteService)
+	server := apiserver.NewAPIServer(srvSetting.Listen, *voteService)
 
 	go func() {
 		// usually server works behind proxy,
