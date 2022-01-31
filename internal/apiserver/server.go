@@ -34,7 +34,7 @@ func NewAPIServer(addr string, service vote_service.VoteService) (srv *http.Serv
 	voting.GET("/result/history", apihandler.RetrieveVoteResultHistory)
 
 	playback := api.Group("/playback")
-	playback.GET("/category/:name", playback_api.RetrieveCompositions)
+	playback.GET("/compositions/:name", playback_api.RetrieveCompositions)
 
 	server := http.Server{
 		Addr:    addr,
