@@ -26,6 +26,16 @@ jobs:
       - uses: actions/checkout@v2      
         with:
           fetch-depth: 0
+      # generate doc server
+      - uses: Legion2/swagger-ui-action@v1
+        with:
+          output: docs/swagger-ui
+          spec-file: docs/openapi.yml
+      - run: |
+              git config user.name "github-actions"
+              git config user.email "github-actions@example.com"
+              git add docs/.
+              git commit -m "generated docs"
       # tooling
       - run: curl $HEROKU_CLI_URL | sh
       # login
@@ -40,7 +50,7 @@ jobs:
       - run: heroku buildpacks:add -a $HEROKU_APP heroku/go || echo go already exists
       # deploy
       - run: heroku git:remote -a $HEROKU_APP
-      - run: git push heroku $GITHUB_REF_NAME:main --force
+      - run: git push heroku HEAD:main --force
       # start
       - run: heroku ps:scale $HEROKU_SERVICE=1
       # check
