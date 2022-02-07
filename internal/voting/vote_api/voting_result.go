@@ -21,25 +21,24 @@ type VotingResult struct {
 // RetrieveLastVoteResult returns aggregated result of last voting
 func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 
-	// TODO call service methods here to actually fetch data
+	votes, err := h.service.LastVoting()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
+
+	results := make([]CategoryScore, len(votes.Score))
+	for name, score := range votes.Score {
+		results = append(results, CategoryScore{
+			Name:  name,
+			Score: score,
+		})
+	}
 
 	c.JSON(http.StatusOK, VotingResult{
-		Datetime: time.Now().Round(1 * time.Hour),
-		Total:    82,
-		Results: []CategoryScore{
-			{
-				Name:  "cheerful",
-				Score: 43,
-			},
-			{
-				Name:  "lyrical",
-				Score: 32,
-			},
-			{
-				Name:  "relaxed",
-				Score: 7,
-			},
-		},
+		Datetime: votes.Datetime,
+		Total:    votes.Total,
+		Results:  results,
 	})
 }
 
@@ -47,69 +46,37 @@ func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 // for defined period
 func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 
-	start := c.Query("start")
-	end := c.Query("end")
+	var searchInterval struct {
+		start time.Time
+		end   time.Time
+	}
+	err := c.ShouldBindQuery(&searchInterval)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	_, _ = start, end
+	votes, err := h.service.HistoryOfVoting(searchInterval.start, searchInterval.end)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	// TODO call service methods here to actually fetch data
+	results := make([]VotingResult, len(votes))
+	for _, vote := range votes {
+		currResult := make([]CategoryScore, len(vote.Score))
+		for name, score := range vote.Score {
+			currResult = append(currResult, CategoryScore{
+				Name:  name,
+				Score: score,
+			})
+		}
+		results = append(results, VotingResult{
+			Datetime: vote.Datetime,
+			Total:    vote.Total,
+			Results:  currResult,
+		})
+	}
 
-	lastHour := time.Now().Round(1 * time.Hour)
-
-	c.JSON(http.StatusOK, []VotingResult{
-		{
-			Datetime: lastHour.Add(-1 * time.Hour),
-			Total:    82,
-			Results: []CategoryScore{
-				{
-					Name:  "cheerful",
-					Score: 43,
-				},
-				{
-					Name:  "lyrical",
-					Score: 32,
-				},
-				{
-					Name:  "relaxed",
-					Score: 7,
-				},
-			},
-		},
-		{
-			Datetime: lastHour.Add(-2 * time.Hour),
-			Total:    78,
-			Results: []CategoryScore{
-				{
-					Name:  "lyrical",
-					Score: 51,
-				},
-				{
-					Name:  "cheerful",
-					Score: 20,
-				},
-				{
-					Name:  "relaxed",
-					Score: 7,
-				},
-			},
-		},
-		{
-			Datetime: lastHour.Add(-3 * time.Hour),
-			Total:    15,
-			Results: []CategoryScore{
-				{
-					Name:  "lyrical",
-					Score: 10,
-				},
-				{
-					Name:  "relaxed",
-					Score: 5,
-				},
-				{
-					Name:  "cheerful",
-					Score: 0,
-				},
-			},
-		},
-	})
+	c.JSON(http.StatusOK, results)
 }

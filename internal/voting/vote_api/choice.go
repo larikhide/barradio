@@ -15,7 +15,11 @@ func (h *VoteAPIHandler) MakeCategoryChoice(c *gin.Context) {
 		return
 	}
 
-	// TODO call service methods here to actually save vote
+	err = h.service.ChooseCategory(choice.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
 
 	c.Status(http.StatusCreated)
 }

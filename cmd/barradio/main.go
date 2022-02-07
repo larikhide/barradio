@@ -32,8 +32,9 @@ type DBSettings struct {
 }
 
 type ServerSettings struct {
-	Listen   string `default:"127.0.0.1:8123"`
-	LogLevel string `default:"INFO"`
+	Listen           string        `default:"127.0.0.1:8123"`
+	LogLevel         string        `default:"INFO"`
+	CountingInterval time.Duration `default:"30m"`
 }
 
 func setUp() (srv *ServerSettings, db *DBSettings) {
@@ -73,7 +74,7 @@ func main() {
 	}
 	defer voteStore.Close()
 
-	voteService, err := vote_service.NewVoteService(voteStore)
+	voteService, err := vote_service.NewVoteService(voteStore, srvSetting.CountingInterval)
 	if err != nil {
 		log.Fatalf("cannot initialize service: %s", err.Error())
 	}
