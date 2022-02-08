@@ -8,7 +8,7 @@ type VoteStorage interface {
 	Close() error
 	GetVoteCategories() ([]string, error)
 	SaveVoteForCategory(Vote) error
-	GetVotesForInterval(start, end time.Time) ([]Vote, error)
+	GetVotesCountForInterval(start, end time.Time) (map[string]int, error)
 }
 
 type Vote struct {

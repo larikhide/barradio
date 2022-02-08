@@ -56,18 +56,15 @@ func (s *PostgresVoteStorage) SaveVoteForCategory(vote vote_service.Vote) error 
 	return nil
 }
 
-func (s *PostgresVoteStorage) GetVotesForInterval(start, end time.Time) ([]vote_service.Vote, error) {
+func (s *PostgresVoteStorage) GetVotesCountForInterval(start, end time.Time) (map[string]int, error) {
 
 	// TODO fetch from DB
 
-	result := make([]vote_service.Vote, len(s.votes))
+	result := make(map[string]int)
 
 	for _, vote := range s.votes {
 		if vote.CreatedAt.After(start) && vote.CreatedAt.Before(end) {
-			result = append(result, vote_service.Vote{
-				Category:  vote.Category,
-				CreatedAt: vote.CreatedAt,
-			})
+			result[vote.Category] += 1
 		}
 	}
 

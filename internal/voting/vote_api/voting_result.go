@@ -27,7 +27,7 @@ func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 		return
 	}
 
-	results := make([]CategoryScore, len(votes.Score))
+	results := make([]CategoryScore, 0, len(votes.Score))
 	for name, score := range votes.Score {
 		results = append(results, CategoryScore{
 			Name:  name,

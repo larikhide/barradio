@@ -1,6 +1,8 @@
 package vote_service
 
-import "time"
+import (
+	"time"
+)
 
 // VoteService implements business logic of voting
 type VoteService struct {
@@ -39,14 +41,14 @@ func (v *VoteService) ChooseCategory(name string) error {
 // LastVoting returns voting results for the last
 // completed interval
 func (v *VoteService) LastVoting() (*VotingResult, error) {
-	intervalEnd := time.Now().Round(v.countingInterval)
+	intervalEnd := time.Now().Truncate(v.countingInterval)
 	intervalStart := intervalEnd.Add(-v.countingInterval)
 	return v.countVotesForInterval(intervalStart, intervalEnd)
 }
 
 // HistoryOfVoting returns all results from <start> till <end>
 func (v *VoteService) HistoryOfVoting(start, end time.Time) ([]*VotingResult, error) {
-	intervalStart := start.Round(v.countingInterval)
+	intervalStart := start.Truncate(v.countingInterval)
 	if intervalStart.Before(start) {
 		intervalStart = intervalStart.Add(v.countingInterval)
 	}
@@ -65,7 +67,7 @@ func (v *VoteService) HistoryOfVoting(start, end time.Time) ([]*VotingResult, er
 }
 
 func (v *VoteService) countVotesForInterval(start, end time.Time) (*VotingResult, error) {
-	votes, err := v.store.GetVotesForInterval(start, end)
+	votes, err := v.store.GetVotesCountForInterval(start, end)
 	if err != nil {
 		return &VotingResult{}, err
 	}
@@ -75,19 +77,18 @@ func (v *VoteService) countVotesForInterval(start, end time.Time) (*VotingResult
 	if err != nil {
 		return nil, err
 	}
-	score := make(map[string]int, len(categories))
+	score := make(map[string]int)
+	total := 0
 	for _, category := range categories {
-		score[category] = 0
-	}
-
-	// count actual score
-	for _, vote := range votes {
-		score[vote.Category] += 1
+		// get actual score from storage
+		// if category votes did not exists - default 0 will be used
+		score[category] = votes[category]
+		total += votes[category]
 	}
 
 	return &VotingResult{
 		Datetime: end,
-		Total:    len(votes),
+		Total:    total,
 		Score:    score,
 	}, nil
 }
