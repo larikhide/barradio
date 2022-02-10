@@ -2,6 +2,7 @@ package vote_api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,11 +11,12 @@ import (
 
 // VoteAPIHandler is container which stores handler depencies
 type VoteAPIHandler struct {
-	service vote_service.VoteService
+	service             vote_service.VoteService
+	defaultHistoryDepth time.Duration
 }
 
-func NewVoteAPIHandler(service vote_service.VoteService) VoteAPIHandler {
-	return VoteAPIHandler{service: service}
+func NewVoteAPIHandler(service vote_service.VoteService, defaultHistoryDepth time.Duration) VoteAPIHandler {
+	return VoteAPIHandler{service: service, defaultHistoryDepth: defaultHistoryDepth}
 }
 
 // Hello just dummy handler to check if app is working

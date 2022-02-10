@@ -75,9 +75,12 @@ func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 // for defined period
 func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 
-	var searchInterval struct {
+	searchInterval := struct {
 		start time.Time
 		end   time.Time
+	}{
+		start: time.Now().Add(-h.defaultHistoryDepth),
+		end:   time.Now(),
 	}
 	err := c.ShouldBindQuery(&searchInterval)
 	if err != nil {
@@ -91,7 +94,7 @@ func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 		return
 	}
 
-	results := make([]*VotingResult, len(votes))
+	results := make([]*VotingResult, 0, len(votes))
 	for _, vote := range votes {
 		results = append(results, mapVotingResult(vote))
 	}
