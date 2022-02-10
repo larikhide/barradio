@@ -63,12 +63,15 @@ func (v *VoteService) HistoryOfVoting(start, end time.Time) ([]*VotingResult, er
 	intervalEnd := intervalStart.Add(v.countingInterval)
 
 	result := make([]*VotingResult, 0)
-	for intervalEnd.Before(end) {
+	for !intervalEnd.After(end) {
 		score, err := v.countVotesForInterval(intervalStart, intervalEnd)
 		if err != nil {
 			return []*VotingResult{}, err
 		}
 		result = append(result, score)
+
+		intervalStart = intervalStart.Add(v.countingInterval)
+		intervalEnd = intervalEnd.Add(v.countingInterval)
 	}
 
 	return result, nil
