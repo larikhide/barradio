@@ -2,9 +2,11 @@ package vote_api
 
 import (
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/larikhide/barradio/internal/voting/vote_service"
 )
 
 type CategoryScore struct {
@@ -18,6 +20,45 @@ type VotingResult struct {
 	Results  []CategoryScore `json:"results"`
 }
 
+func mapVotingResult(votes *vote_service.VotingResult) *VotingResult {
+
+	results := make([]CategoryScore, 0, len(votes.Score))
+	for name, score := range votes.Score {
+		results = append(results, CategoryScore{
+			Name:  name,
+			Score: score,
+		})
+	}
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].Score != results[j].Score {
+			// firstly, order by score desc
+			return results[i].Score > results[j].Score
+		}
+		// secondly, by Name asc
+		return results[i].Name < results[j].Name
+	})
+
+	return &VotingResult{
+		Datetime: votes.Datetime,
+		Total:    votes.Total,
+		Results:  results,
+	}
+
+}
+
+// RetrieveLastVoteResult returns aggregated result of current
+// unfinished voting
+func (h *VoteAPIHandler) RetrieveCurrentVoteResult(c *gin.Context) {
+
+	votes, err := h.service.CurrentVoting()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, mapVotingResult(votes))
+}
+
 // RetrieveLastVoteResult returns aggregated result of last voting
 func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 
@@ -27,19 +68,7 @@ func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 		return
 	}
 
-	results := make([]CategoryScore, 0, len(votes.Score))
-	for name, score := range votes.Score {
-		results = append(results, CategoryScore{
-			Name:  name,
-			Score: score,
-		})
-	}
-
-	c.JSON(http.StatusOK, VotingResult{
-		Datetime: votes.Datetime,
-		Total:    votes.Total,
-		Results:  results,
-	})
+	c.JSON(http.StatusOK, mapVotingResult(votes))
 }
 
 // RetrieveVoteResultHistory returns aggregated results of voting
@@ -62,20 +91,9 @@ func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 		return
 	}
 
-	results := make([]VotingResult, len(votes))
+	results := make([]*VotingResult, len(votes))
 	for _, vote := range votes {
-		currResult := make([]CategoryScore, len(vote.Score))
-		for name, score := range vote.Score {
-			currResult = append(currResult, CategoryScore{
-				Name:  name,
-				Score: score,
-			})
-		}
-		results = append(results, VotingResult{
-			Datetime: vote.Datetime,
-			Total:    vote.Total,
-			Results:  currResult,
-		})
+		results = append(results, mapVotingResult(vote))
 	}
 
 	c.JSON(http.StatusOK, results)

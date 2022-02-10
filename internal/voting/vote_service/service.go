@@ -38,6 +38,14 @@ func (v *VoteService) ChooseCategory(name string) error {
 	return err
 }
 
+// LastVoting returns voting results for the current
+// uncomlited interval
+func (v *VoteService) CurrentVoting() (*VotingResult, error) {
+	intervalEnd := time.Now()
+	intervalStart := time.Now().Truncate(v.countingInterval)
+	return v.countVotesForInterval(intervalStart, intervalEnd)
+}
+
 // LastVoting returns voting results for the last
 // completed interval
 func (v *VoteService) LastVoting() (*VotingResult, error) {

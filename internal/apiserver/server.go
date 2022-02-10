@@ -30,6 +30,7 @@ func NewAPIServer(addr string, service vote_service.VoteService) (srv *http.Serv
 	voting := api.Group("/voting")
 	voting.GET("/category", apihandler.RetrieveVoteCategories)
 	voting.POST("/choice", apihandler.MakeCategoryChoice)
+	voting.GET("/result/current", apihandler.RetrieveCurrentVoteResult)
 	voting.GET("/result/last", apihandler.RetrieveLastVoteResult)
 	voting.GET("/result/history", apihandler.RetrieveVoteResultHistory)
 
