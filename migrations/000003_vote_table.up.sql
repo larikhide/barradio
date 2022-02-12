@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS vote
     id uuid NOT NULL,
     category_id uuid NOT NULL,
     category_code integer NOT NULL,
-    date timestamp without time zone NOT NULL,
+    date timestamp NOT NULL,
     CONSTRAINT vote_pkey PRIMARY KEY (id)
 );
 
