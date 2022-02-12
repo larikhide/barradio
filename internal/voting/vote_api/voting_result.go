@@ -2,9 +2,11 @@ package vote_api
 
 import (
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/larikhide/barradio/internal/voting/vote_service"
 )
 
 type CategoryScore struct {
@@ -18,98 +20,84 @@ type VotingResult struct {
 	Results  []CategoryScore `json:"results"`
 }
 
+func mapVotingResult(votes *vote_service.VotingResult) *VotingResult {
+
+	results := make([]CategoryScore, 0, len(votes.Score))
+	for name, score := range votes.Score {
+		results = append(results, CategoryScore{
+			Name:  name,
+			Score: score,
+		})
+	}
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].Score != results[j].Score {
+			// firstly, order by score desc
+			return results[i].Score > results[j].Score
+		}
+		// secondly, by Name asc
+		return results[i].Name < results[j].Name
+	})
+
+	return &VotingResult{
+		Datetime: votes.Datetime,
+		Total:    votes.Total,
+		Results:  results,
+	}
+
+}
+
+// RetrieveLastVoteResult returns aggregated result of current
+// unfinished voting
+func (h *VoteAPIHandler) RetrieveCurrentVoteResult(c *gin.Context) {
+
+	votes, err := h.service.CurrentVoting()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, mapVotingResult(votes))
+}
+
 // RetrieveLastVoteResult returns aggregated result of last voting
 func (h *VoteAPIHandler) RetrieveLastVoteResult(c *gin.Context) {
 
-	// TODO call service methods here to actually fetch data
+	votes, err := h.service.LastVoting()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	c.JSON(http.StatusOK, VotingResult{
-		Datetime: time.Now().Round(1 * time.Hour),
-		Total:    82,
-		Results: []CategoryScore{
-			{
-				Name:  "cheerful",
-				Score: 43,
-			},
-			{
-				Name:  "lyrical",
-				Score: 32,
-			},
-			{
-				Name:  "relaxed",
-				Score: 7,
-			},
-		},
-	})
+	c.JSON(http.StatusOK, mapVotingResult(votes))
 }
 
 // RetrieveVoteResultHistory returns aggregated results of voting
 // for defined period
 func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 
-	start := c.Query("start")
-	end := c.Query("end")
+	searchInterval := struct {
+		start time.Time
+		end   time.Time
+	}{
+		start: time.Now().Add(-h.defaultHistoryDepth),
+		end:   time.Now(),
+	}
+	err := c.ShouldBindQuery(&searchInterval)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	_, _ = start, end
+	votes, err := h.service.HistoryOfVoting(searchInterval.start, searchInterval.end)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	// TODO call service methods here to actually fetch data
+	results := make([]*VotingResult, 0, len(votes))
+	for _, vote := range votes {
+		results = append(results, mapVotingResult(vote))
+	}
 
-	lastHour := time.Now().Round(1 * time.Hour)
-
-	c.JSON(http.StatusOK, []VotingResult{
-		{
-			Datetime: lastHour.Add(-1 * time.Hour),
-			Total:    82,
-			Results: []CategoryScore{
-				{
-					Name:  "cheerful",
-					Score: 43,
-				},
-				{
-					Name:  "lyrical",
-					Score: 32,
-				},
-				{
-					Name:  "relaxed",
-					Score: 7,
-				},
-			},
-		},
-		{
-			Datetime: lastHour.Add(-2 * time.Hour),
-			Total:    78,
-			Results: []CategoryScore{
-				{
-					Name:  "lyrical",
-					Score: 51,
-				},
-				{
-					Name:  "cheerful",
-					Score: 20,
-				},
-				{
-					Name:  "relaxed",
-					Score: 7,
-				},
-			},
-		},
-		{
-			Datetime: lastHour.Add(-3 * time.Hour),
-			Total:    15,
-			Results: []CategoryScore{
-				{
-					Name:  "lyrical",
-					Score: 10,
-				},
-				{
-					Name:  "relaxed",
-					Score: 5,
-				},
-				{
-					Name:  "cheerful",
-					Score: 0,
-				},
-			},
-		},
-	})
+	c.JSON(http.StatusOK, results)
 }

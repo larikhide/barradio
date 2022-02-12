@@ -13,11 +13,11 @@ type VoteCategory struct {
 
 // RetrieveVotecategories returns music categories which user can choose
 func (h *VoteAPIHandler) RetrieveVoteCategories(c *gin.Context) {
-	// TODO call service method to fetch data from storage
+	categories, err := h.service.GetCategories()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
 
-	c.JSON(http.StatusOK, []VoteCategory{
-		{ID: "c100", Name: "cheerful"},
-		{ID: "c101", Name: "relaxed"},
-		{ID: "c102", Name: "lyrical"},
-	})
+	c.JSON(http.StatusOK, categories)
 }

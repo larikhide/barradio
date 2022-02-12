@@ -15,13 +15,13 @@ import (
 
 var ServerTimeout = 60 * time.Second
 
-func NewAPIServer(addr string, service vote_service.VoteService) (srv *http.Server) {
+func NewAPIServer(addr string, service vote_service.VoteService, defaultHistoryDepth time.Duration) (srv *http.Server) {
 
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	apihandler := vote_api.NewVoteAPIHandler(service)
+	apihandler := vote_api.NewVoteAPIHandler(service, defaultHistoryDepth)
 
 	// endpoints
 	api := router.Group("/api")
@@ -30,6 +30,7 @@ func NewAPIServer(addr string, service vote_service.VoteService) (srv *http.Serv
 	voting := api.Group("/voting")
 	voting.GET("/category", apihandler.RetrieveVoteCategories)
 	voting.POST("/choice", apihandler.MakeCategoryChoice)
+	voting.GET("/result/current", apihandler.RetrieveCurrentVoteResult)
 	voting.GET("/result/last", apihandler.RetrieveLastVoteResult)
 	voting.GET("/result/history", apihandler.RetrieveVoteResultHistory)
 
