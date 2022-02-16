@@ -21,5 +21,11 @@ func (h *VoteAPIHandler) MakeCategoryChoice(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	votes, err := h.service.CurrentVoting()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIBaseError{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, mapVotingResult(votes))
 }
