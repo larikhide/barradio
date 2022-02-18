@@ -66,8 +66,9 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 
 	vtst := &PostgresVoteStorage{PG: db}
 
+	//Для автогенерации голосования********************************
 	go vtst.GenerateVotes("3s")
-
+    //*************************************************************
 	return vtst, nil
 }
 
@@ -129,9 +130,7 @@ func (s *PostgresVoteStorage) SaveVoteForCategory(vote vote_service.Vote) error 
 		return err
 	}
 	id := uuid.New()
-	_ , err = s.PG.Exec(`
-         insert into vote (id, category_id , category_code,created_at) 
-		  values ($1, $2, $3, $4)`, id, category_id, code, vote.CreatedAt)
+	_ , err = s.PG.Exec(`insert into vote (id, category_id , category_code, created_at) values ($1, $2, $3, $4)`, id, category_id, code, vote.CreatedAt)
 
 	if err != nil {
 		return err
@@ -150,6 +149,20 @@ func (s *PostgresVoteStorage) GetVotesCountForInterval(start, end time.Time) (ma
 	// 		result[vote.Category] += 1
 	// 	}
 	// }
+
+	// category_id uuid NOT NULL,
+    // category_code integer NOT NULL,
+    // created_at
+	rows, err := s.PG.Query(`select c.name, v.category_code, count(v.category_code) from vote v  
+							inner join category c on c.code = v. category_code
+	                         where v.created_at between $1 and $2 
+							 group by c.name,v.category_code`, start, end)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+
 
 	return result, nil
 }
