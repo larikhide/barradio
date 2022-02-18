@@ -50,7 +50,7 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 		log.Println(err)
 		log.Fatalf("cannot run migration: %s", err.Error())
 	}
-	m.Up()
+	err = m.Up()
 	if err != nil {
 		log.Println(err)
 		log.Fatalf("cannot run migration: %s", err.Error())
