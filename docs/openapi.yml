@@ -59,6 +59,10 @@ paths:
       responses:
         "201":
           description: New vote saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteResult"
         "400":
           description: Invalid request body
           content:
