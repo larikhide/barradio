@@ -163,7 +163,7 @@ func (s *PostgresVoteStorage) GenerateVotes(ss string) {
 			CreatedAt: time.Now(),
 		}
 		//fmt.Println(vote)
-		s.SaveVoteForCategory(vote)
+		_ = s.SaveVoteForCategory(vote)
 		d, _ := time.ParseDuration(ss)
 		time.Sleep(d)
 	}
