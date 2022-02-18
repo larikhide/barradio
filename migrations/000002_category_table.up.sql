@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS category
     created_at timestamp NOT NULL,
     updated_at timestamp NOT NULL,
     name character varying(50) NOT NULL,
-    code integer generated always as identity,,
+    code integer generated always as identity,
     name_ru character varying(50)  NOT NULL,
     is_run boolean NOT NULL DEFAULT true,
     CONSTRAINT pk_category_id PRIMARY KEY (id)

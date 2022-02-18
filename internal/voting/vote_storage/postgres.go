@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -20,15 +21,6 @@ var _ vote_service.VoteStorage = &PostgresVoteStorage{}
 
 // PostgresVoteStorage encapsulates all DB work
 type PostgresVoteStorage struct {
-
-	// TODO
-	// now data stores in memory - just for tests
-	// remove after implementing DB calls
-	// votes []struct {
-	// 	CreatedAt time.Time
-	// 	Category  string
-	// }
-
 	PG *sql.DB
 }
 
@@ -67,15 +59,14 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 	vtst := &PostgresVoteStorage{PG: db}
 
 	//Для автогенерации голосования********************************
-	go vtst.GenerateVotes("3s")
-    //*************************************************************
+	//go vtst.GenerateVotes("3s")
+	//*************************************************************
 	return vtst, nil
 }
 
 // Close disconnects from DB
 func (s *PostgresVoteStorage) Close() error {
-	// dummy to clean shutdown app server
-	// TODO implement due https://github.com/larikhide/barradio/issues/8
+
 	return s.PG.Close()
 }
 
@@ -107,20 +98,6 @@ func (s *PostgresVoteStorage) SaveVoteForCategory(vote vote_service.Vote) error 
 
 	// TODO store in DB instead of memory
 
-	// s.votes = append(s.votes, struct {
-	// 	CreatedAt time.Time
-	// 	Category  string
-	// }{
-	// 	CreatedAt: vote.CreatedAt,
-	// 	Category:  vote.Category,
-	// })
-
-	/*
-			id uuid NOT NULL,
-		    category_id uuid NOT NULL,
-		    category_code integer NOT NULL,
-		    created_at timestamp NOT NULL,
-	*/
 	var code int
 	var category_id uuid.UUID
 
@@ -130,7 +107,7 @@ func (s *PostgresVoteStorage) SaveVoteForCategory(vote vote_service.Vote) error 
 		return err
 	}
 	id := uuid.New()
-	_ , err = s.PG.Exec(`insert into vote (id, category_id , category_code, created_at) values ($1, $2, $3, $4)`, id, category_id, code, vote.CreatedAt)
+	_, err = s.PG.Exec(`insert into vote (id, category_id , category_code, created_at) values ($1, $2, $3, $4)`, id, category_id, code, vote.CreatedAt)
 
 	if err != nil {
 		return err
@@ -143,34 +120,50 @@ func (s *PostgresVoteStorage) GetVotesCountForInterval(start, end time.Time) (ma
 	// TODO fetch from DB
 
 	result := make(map[string]int)
-
-	// for _, vote := range s.votes {
-	// 	if vote.CreatedAt.After(start) && vote.CreatedAt.Before(end) {
-	// 		result[vote.Category] += 1
-	// 	}
-	// }
-
-	// category_id uuid NOT NULL,
-    // category_code integer NOT NULL,
-    // created_at
 	rows, err := s.PG.Query(`select c.name, v.category_code, count(v.category_code) from vote v  
 							inner join category c on c.code = v. category_code
 	                         where v.created_at between $1 and $2 
 							 group by c.name,v.category_code`, start, end)
 	if err != nil {
-		panic(err)
+		return result, err
 	}
 	defer rows.Close()
 
+	var cat string
+	var voteResult int
+	var code int
 
+	for rows.Next() {
+
+		err := rows.Scan(&cat, &code, &voteResult)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		result[cat] = voteResult
+	}
 
 	return result, nil
 }
 
 func (s *PostgresVoteStorage) GenerateVotes(ss string) {
+
+	var vote vote_service.Vote
+	var cat string
 	for {
 		n := (1 + rand.Intn(3-1+1))
-		fmt.Println(n)
+		row := s.PG.QueryRow(`select c.name from category c where c.code =$1`, n)
+		err := row.Scan(&cat)
+		if err != nil {
+			return
+		}
+
+		vote = vote_service.Vote{
+			Category:  cat,
+			CreatedAt: time.Now(),
+		}
+		//fmt.Println(vote)
+		s.SaveVoteForCategory(vote)
 		d, _ := time.ParseDuration(ss)
 		time.Sleep(d)
 	}
