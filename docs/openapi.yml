@@ -190,3 +190,6 @@ components:
           type: string
         composition_url:
           type: string
+        duration_sec:
+          type: string
+          format: date-time

@@ -10,10 +10,10 @@ import (
 
 // VoteAPIHandler is container which stores handler depencies
 type VoteAPIHandler struct {
-	service vote_service.VoteService
+	service *vote_service.VoteService
 }
 
-func NewVoteAPIHandler(service vote_service.VoteService) VoteAPIHandler {
+func NewVoteAPIHandler(service *vote_service.VoteService) VoteAPIHandler {
 	return VoteAPIHandler{service: service}
 }
 
