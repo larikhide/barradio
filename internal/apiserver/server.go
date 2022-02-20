@@ -23,7 +23,7 @@ func NewAPIServer(addr string, voteSvc *vote_service.VoteService, playbackSvc *p
 	router.Use(gin.Recovery())
 
 	voteHandler := vote_api.NewVoteAPIHandler(voteSvc)
-	playbackHandler := playback_api.NewPlaybackHandler(playbackSvc)
+	playbackHandler := playback_api.NewPlaybackHandler(playbackSvc, voteSvc)
 
 	// endpoints
 	api := router.Group("/api")
@@ -38,6 +38,8 @@ func NewAPIServer(addr string, voteSvc *vote_service.VoteService, playbackSvc *p
 
 	playback := api.Group("/playback")
 	playback.GET("/compositions/:name", playbackHandler.RetrieveCompositions)
+	playback.GET("/topvoted/playlist/compositions", playbackHandler.TopvotedPlaylistCompositions)
+	playback.GET("/topvoted/playlist", playbackHandler.TopvotedPlaylist)
 
 	server := http.Server{
 		Addr:    addr,

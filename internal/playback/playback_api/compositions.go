@@ -19,7 +19,7 @@ type Composition struct {
 func (h *PlaybackAPIHandler) RetrieveCompositions(c *gin.Context) {
 	category := c.Param("name")
 
-	tracks, err := h.service.GetTreksByCategory(category)
+	tracks, err := h.stream.GetTracksByCategory(category)
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, playback_service.ErrUnknownCategory) {

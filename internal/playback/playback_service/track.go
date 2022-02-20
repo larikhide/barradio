@@ -11,8 +11,10 @@ type Track struct {
 }
 
 type TrackList struct {
-	ID          string
-	Name        string
-	ExternalURL string
-	Treks       []Track
+	ID            string
+	Name          string
+	ExternalURL   string
+	Tracks        []*Track
+	TotalTracks   int
+	TotalDuration float64
 }
