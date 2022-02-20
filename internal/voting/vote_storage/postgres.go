@@ -51,13 +51,11 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 		driver.Close()
 		return vtst, err
 	}
-	err = m.Up()
-	if err != nil {
-		//log.Println("m.Up")
-		log.Println(err)
-		return vtst, err
-	}
 
+
+	m.Up()
+	
+	
 	//Для автогенерации голосования********************************
 	//go vtst.GenerateVotes("3s")
 	//*************************************************************
