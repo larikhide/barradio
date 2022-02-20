@@ -26,10 +26,6 @@ type PostgresVoteStorage struct {
 
 // NewPostgresVoteStorage returns new rady to use instance of DB connector
 func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, error) {
-	// dummy to just start app server
-	// TODO implement due https://github.com/larikhide/barradio/issues/8
-	//return &PostgresVoteStorage{}, nil
-
 	db, err := sql.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -40,23 +36,24 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 		return nil, err
 	}
 
+	vtst := &PostgresVoteStorage{PG: db}
+
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return vtst, err
 	}
 	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", mgrt), "barradio", driver)
 	if err != nil {
 		log.Println(err)
-		log.Fatalf("cannot run migration: %s", err.Error())
+		driver.Close()
+		return vtst, err
 	}
 	err = m.Up()
 	if err != nil {
 		log.Println(err)
-		log.Fatalf("cannot run migration: %s", err.Error())
+		return vtst, err
 	}
-
-	vtst := &PostgresVoteStorage{PG: db}
 
 	//Для автогенерации голосования********************************
 	//go vtst.GenerateVotes("3s")
@@ -72,20 +69,21 @@ func (s *PostgresVoteStorage) Close() error {
 
 func (s *PostgresVoteStorage) GetVoteCategories() ([]string, error) {
 
-	// TODO make actual DB request
-
 	var cat string
 	var categories []string
 	rows, err := s.PG.Query("select name from category  where is_run = true")
 	if err != nil {
-		panic(err)
+
+		log.Println(err)
+		rows.Close()
+		return categories, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 
 		err := rows.Scan(&cat)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 		categories = append(categories, cat)
@@ -137,7 +135,7 @@ func (s *PostgresVoteStorage) GetVotesCountForInterval(start, end time.Time) (ma
 
 		err := rows.Scan(&cat, &code, &voteResult)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 		result[cat] = voteResult
@@ -162,7 +160,7 @@ func (s *PostgresVoteStorage) GenerateVotes(ss string) {
 			Category:  cat,
 			CreatedAt: time.Now(),
 		}
-		//fmt.Println(vote)
+		
 		_ = s.SaveVoteForCategory(vote)
 		d, _ := time.ParseDuration(ss)
 		time.Sleep(d)
