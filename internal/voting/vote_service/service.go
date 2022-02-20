@@ -10,13 +10,16 @@ type VoteService struct {
 	// countingInterval is duration for vote accumulation
 	// before counting
 	countingInterval time.Duration
+	// DefaultHistoryDepth defines period for histrory fetching
+	DefaultHistoryDepth time.Duration
 }
 
 // NewVoteService returns ready to use instance of service
-func NewVoteService(storage VoteStorage, countingInterval time.Duration) (*VoteService, error) {
+func NewVoteService(storage VoteStorage, countingInterval, defaultHistoryDepth time.Duration) (*VoteService, error) {
 	service := &VoteService{
-		store:            storage,
-		countingInterval: countingInterval,
+		store:               storage,
+		countingInterval:    countingInterval,
+		DefaultHistoryDepth: defaultHistoryDepth,
 	}
 	return service, nil
 }

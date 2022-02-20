@@ -15,13 +15,13 @@ import (
 
 var ServerTimeout = 60 * time.Second
 
-func NewAPIServer(addr string, service vote_service.VoteService, defaultHistoryDepth time.Duration) (srv *http.Server) {
+func NewAPIServer(addr string, voteSvc vote_service.VoteService) (srv *http.Server) {
 
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	apihandler := vote_api.NewVoteAPIHandler(service, defaultHistoryDepth)
+	apihandler := vote_api.NewVoteAPIHandler(voteSvc)
 
 	// endpoints
 	api := router.Group("/api")

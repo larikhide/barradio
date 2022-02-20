@@ -79,7 +79,7 @@ func (h *VoteAPIHandler) RetrieveVoteResultHistory(c *gin.Context) {
 		start time.Time
 		end   time.Time
 	}{
-		start: time.Now().Add(-h.defaultHistoryDepth),
+		start: time.Now().Add(-h.service.DefaultHistoryDepth),
 		end:   time.Now(),
 	}
 	err := c.ShouldBindQuery(&searchInterval)

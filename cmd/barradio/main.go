@@ -75,13 +75,13 @@ func main() {
 	}
 	defer voteStore.Close()
 
-	voteService, err := vote_service.NewVoteService(voteStore, srvSetting.CountingInterval)
+	voteService, err := vote_service.NewVoteService(voteStore, srvSetting.CountingInterval, srvSetting.DefaultHistoryDepth)
 	if err != nil {
 		log.Fatalf("cannot initialize service: %s", err.Error())
 	}
 	// start api server
 
-	server := apiserver.NewAPIServer(srvSetting.Listen, *voteService, srvSetting.DefaultHistoryDepth)
+	server := apiserver.NewAPIServer(srvSetting.Listen, *voteService)
 
 	go func() {
 		// usually server works behind proxy,
