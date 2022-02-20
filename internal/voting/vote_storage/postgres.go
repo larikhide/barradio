@@ -53,7 +53,7 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 	}
 
 
-	m.Up()
+	 _ = m.Up()
 	
 	
 	//Для автогенерации голосования********************************
