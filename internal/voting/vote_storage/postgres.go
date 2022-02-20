@@ -40,17 +40,20 @@ func NewPostgresVoteStorage(url string, mgrt string) (*PostgresVoteStorage, erro
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
+		log.Println("postgres.WithInstance")
 		log.Println(err)
 		return vtst, err
 	}
 	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", mgrt), "barradio", driver)
 	if err != nil {
+		log.Println("migrate.NewWithDatabaseInstance")
 		log.Println(err)
 		driver.Close()
 		return vtst, err
 	}
 	err = m.Up()
 	if err != nil {
+		log.Println("m.Up")
 		log.Println(err)
 		return vtst, err
 	}
