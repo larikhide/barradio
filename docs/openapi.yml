@@ -148,7 +148,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BaseError"
-  /api/playback/topvoted/compositions:
+  /api/playback/topvoted/playlist/compositions:
     get:
       tags:
         - playback
@@ -168,7 +168,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BaseError"
-  /api/playback/topvoted:
+  /api/playback/topvoted/playlist:
     get:
       tags:
         - playback
