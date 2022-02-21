@@ -93,8 +93,8 @@ func (s *PlaybackService) GetTracklistByCategory(category string) (*TrackList, e
 			image = tr.Track.Album.Images[0].URL
 		}
 		url := ""
-		if len(tr.Track.Album.ExternalURLs) > 0 {
-			for _, val := range tr.Track.Album.ExternalURLs {
+		if len(tr.Track.ExternalURLs) > 0 {
+			for _, val := range tr.Track.ExternalURLs {
 				url = val
 				break
 			}
