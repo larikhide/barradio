@@ -1,0 +1,17 @@
+GET  http://127.0.0.1:8123/api/voting/category HTTP/1.1
+
+###
+POST http://localhost:8123/api/voting/choice
+Content-type: application/json; charset=utf-8
+
+{ 
+    "name": "relaxed"
+}
+###
+GET http://localhost:8123/api/voting/result/current
+
+###
+GET http://localhost:8123/api/voting/result/last
+
+###
+GET http://localhost:8123/api/voting/result/history

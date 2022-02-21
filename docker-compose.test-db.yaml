@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:13.5
+    environment:
+      POSTGRES_DB: "barradio"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      
+    volumes:
+    
+      - .:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"

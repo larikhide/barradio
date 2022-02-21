@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -21,10 +22,11 @@ import (
 )
 
 const (
-	envPrefix             = "BARRADIO"
-	envDbPrefix           = "DATABASE"
-	herokuNginxSignalFile = "/tmp/app-initialized"
+	envPrefix   = "BARRADIO"
+	envDbPrefix = "DATABASE"
 )
+
+var herokuNginxSignalFile = path.Join(os.TempDir(), "app-initialized")
 
 type DBSettings struct {
 	URL           string        `default:"host=localhost port=5432 user=postgres password=postgres dbname=barradio sslmode=disable"`
@@ -72,7 +74,7 @@ func main() {
 	srvSetting, dbSettings := setUp()
 
 	// init services
-	voteStore, err := vote_storage.NewPostgresVoteStorage(dbSettings.URL)
+	voteStore, err := vote_storage.NewPostgresVoteStorage(dbSettings.URL, dbSettings.MigrationsDir)
 	if err != nil {
 		log.Fatalf("cannot initialize storage: %s", err.Error())
 	}
