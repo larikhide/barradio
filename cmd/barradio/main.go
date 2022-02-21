@@ -71,7 +71,7 @@ func main() {
 	srvSetting, dbSettings := setUp()
 
 	// init services
-	voteStore, err := vote_storage.NewPostgresVoteStorage(dbSettings.URL)
+	voteStore, err := vote_storage.NewPostgresVoteStorage(dbSettings.URL, dbSettings.MigrationsDir)
 	if err != nil {
 		log.Fatalf("cannot initialize storage: %s", err.Error())
 	}
