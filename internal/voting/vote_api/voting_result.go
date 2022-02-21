@@ -2,7 +2,6 @@ package vote_api
 
 import (
 	"net/http"
-	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,21 +22,12 @@ type VotingResult struct {
 func mapVotingResult(votes *vote_service.VotingResult) *VotingResult {
 
 	results := make([]CategoryScore, 0, len(votes.Score))
-	for name, score := range votes.Score {
+	for _, category := range vote_service.SortCategoriesByScore(votes) {
 		results = append(results, CategoryScore{
-			Name:  name,
-			Score: score,
+			Name:  category.Name,
+			Score: category.Score,
 		})
 	}
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].Score != results[j].Score {
-			// firstly, order by score desc
-			return results[i].Score > results[j].Score
-		}
-		// secondly, by Name asc
-		return results[i].Name < results[j].Name
-	})
-
 	return &VotingResult{
 		Datetime: votes.Datetime,
 		Total:    votes.Total,

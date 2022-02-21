@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/larikhide/barradio/internal/voting/vote_service"
 )
 
 var ErrTopvotedNotExists = errors.New("cannot get voting winner")
@@ -25,12 +26,9 @@ func (h *PlaybackAPIHandler) getTopvotedCategory() (string, error) {
 	if votes.Total == 0 {
 		return result, ErrTopvotedNotExists
 	}
-	maxScore := 0
-	for category, score := range votes.Score {
-		if score >= maxScore {
-			maxScore = score
-			result = category
-		}
+	for _, category := range vote_service.SortCategoriesByScore(votes) {
+		result = category.Name
+		break
 	}
 	return result, nil
 }
