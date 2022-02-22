@@ -148,6 +148,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BaseError"
+  /api/playback/topvoted/playlist/compositions:
+    get:
+      tags:
+        - playback
+      summary: Returns a list of tracks for category-winner of last user voting
+      responses:
+        "200":
+          description: Compositions category-winner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Composition"
+        "500":
+          description: Cannot get voting winner (no any votes)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseError"
+  /api/playback/topvoted/playlist:
+    get:
+      tags:
+        - playback
+      summary: Returns a playlist containing tracks for category-winner of last user voting
+      responses:
+        "200":
+          description: Playlist related to category-winner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Playlist"
+        "500":
+          description: Cannot get voting winner (no any votes)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseError"
       
 
 components:
@@ -190,3 +230,16 @@ components:
           type: string
         composition_url:
           type: string
+        duration_sec:
+          type: number
+    Playlist:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        total_tracks:
+          type: number
+        duration:
+          type: number

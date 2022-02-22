@@ -9,12 +9,14 @@ import (
 	"github.com/larikhide/barradio/internal/voting/vote_service"
 )
 
+var defHistoryDepth = 30 * time.Minute
+
 func setUp(countingInterval time.Duration) (storage *vote_service.MockVoteStorage, service *vote_service.VoteService, err error) {
 	storage, err = vote_service.NewMockVoteStorage("")
 	if err != nil {
 		return nil, nil, errors.New("cannot create storage")
 	}
-	service, err = vote_service.NewVoteService(storage, countingInterval)
+	service, err = vote_service.NewVoteService(storage, countingInterval, defHistoryDepth)
 	if err != nil {
 		return nil, nil, errors.New("cannot create service")
 	}
